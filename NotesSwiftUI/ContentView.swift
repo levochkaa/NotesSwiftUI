@@ -1,14 +1,18 @@
-// ContentView.swift
-
 import SwiftUI
 
 struct ContentView: View {
+
+    @ObservedObject var session = Session()
+
+    init() {
+        session.listen()
+    }
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        if self.session.isAnon {
+            LoginView().environmentObject(session)
+        } else {
+            NotesListView().environmentObject(session)
         }
     }
 }
