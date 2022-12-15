@@ -15,7 +15,13 @@ struct TextView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> UITextView {
+        let attrs = [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .body),
+                     NSAttributedString.Key.foregroundColor: UIColor.white]
+        let attrString = NSAttributedString(string: text, attributes: attrs)
+        textStorage.append(attrString)
+        
         let container = NSTextContainer(size: CGSize())
+        container.widthTracksTextView = true
         let layoutManager = NSLayoutManager()
         layoutManager.addTextContainer(container)
         textStorage.addLayoutManager(layoutManager)
@@ -24,6 +30,7 @@ struct TextView: UIViewRepresentable {
         textView.attributedText = NSAttributedString(string: self.text)
         context.coordinator.updateAttributedString()
         textView.delegate = context.coordinator
+        textView.textColor = .white
         return textView
     }
 
@@ -79,7 +86,9 @@ struct TextView: UIViewRepresentable {
                     let range = NSRange(parent.text.startIndex..., in: parent.text)
                     regex.enumerateMatches(in: parent.text, range: range) { match, flags, stop in
                         if let matchRange = match?.range(at: 1) {
-                            parent.textStorage.addAttributes(attributes, range: matchRange)
+                            if matchRange.location + matchRange.length < parent.text.count {
+                                parent.textStorage.addAttributes(attributes, range: matchRange)
+                            }
                         }
                     }
                 } catch {
