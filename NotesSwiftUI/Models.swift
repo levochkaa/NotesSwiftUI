@@ -67,11 +67,11 @@ struct TextView: UIViewRepresentable {
             let fontItalic = UIFont(descriptor: descriptorItalic!, size: 0)
             let italic = [NSAttributedString.Key.font: fontItalic]
 
-            replacements = ["(\\w+(\\s\\w+)*)": body,
-                            "(#s\\w+(\\s\\w+)*#s)": strike,
-                            "(#u\\w+(\\s\\w+)*#u)": underline,
-                            "(#b\\w+(\\s\\w+)*#b)": bold,
-                            "(#i\\w+(\\s\\w+)*#i)": italic]
+            replacements = ["^.+$": body,
+                            "(#s\\s+(\\s\\s+)*#s)": strike,
+                            "(#u\\s+(\\s\\s+)*#u)": underline,
+                            "(#b\\s+(\\s\\s+)*#b)": bold,
+                            "(#i\\s+(\\s\\s+)*#i)": italic]
         }
 
         func textViewDidChange(_ textView: UITextView) {
@@ -83,13 +83,10 @@ struct TextView: UIViewRepresentable {
             for (pattern, attributes) in replacements {
                 do {
                     let regex = try NSRegularExpression(pattern: pattern)
-                    let range = NSRange(parent.text.startIndex..., in: parent.text)
-                    regex.enumerateMatches(in: parent.text, range: range) { match, flags, stop in
-                        if let matchRange = match?.range(at: 1) {
-                            if matchRange.location + matchRange.length < parent.text.count {
-                                parent.textStorage.addAttributes(attributes, range: matchRange)
-                            }
-                        }
+                    let range = NSRange(location: 0, length: parent.text.utf16.count)
+                    let matches = regex.matches(in: parent.text, range: range)
+                    for match in matches {
+                        parent.textStorage.addAttributes(attributes, range: match.range)
                     }
                 } catch {
                     print("error")

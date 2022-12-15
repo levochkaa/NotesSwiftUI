@@ -7,8 +7,8 @@ struct NoteView: View {
     @EnvironmentObject var viewModel: NotesViewModel
 
     var body: some View {
-        TextView(text: $note.text, id: note.id)
-            .environmentObject(viewModel)
+        TextEditor(text: $note.text)
+//            .environmentObject(viewModel)
             .focused($isFocused)
             .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
             .onChange(of: note.text) { _ in
